@@ -7,6 +7,10 @@ import 'package:timezone/timezone.dart' as tz;
 import 'notification_service.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'dart:async';
+
+
+
 
 
 class PostHttpOverrides extends HttpOverrides{
@@ -59,11 +63,69 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   TimeOfDay _selectedTime = TimeOfDay.now();
+  // Add this variable to store the latest timestamp
+  String? _latestTimestamp;
+  // Add this variable to store the Timer instance
+  Timer? _timer;
+  final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
   @override
   void initState() {
     super.initState();
     NotificationService.init();
+    _fetchApiAndSetAlarm(); // Call this function when the app starts
+    // Schedule a periodic Timer to call _fetchApiAndSetAlarm every 15 minutes
+    _timer = Timer.periodic(const Duration(minutes: 1), (Timer timer) {
+      // print("\n------repeting----up----\n");
+      _fetchApiAndSetAlarm();
+      // print("\n------repeting----Down----\n");
+    });
+  }
+
+  @override
+  void dispose() {
+    // Cancel the Timer when the widget is disposed
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _fetchApiAndSetAlarm() async {
+    try {
+      final Map<String, dynamic> data = await fetchDataFromApi('https://web-production-5866.up.railway.app/latest_tweet');
+      final String timestamp = data['timestamp'];
+      final String text = data['text'];
+      // Replace this value with the actual time difference in hours
+      const int timeZoneDifferenceInHours = 6; // Change this value according to your time difference
+
+      // print("\n     Latest timestamp: $_latestTimestamp");
+      // print("        New timestamp: $timestamp");
+
+      if (timestamp != _latestTimestamp) {
+        // If the timestamp has changed, set the alarm
+        _latestTimestamp = timestamp;
+
+        final DateFormat dateFormat = DateFormat("yyyy-MM-dd HH:mm:ss");
+        final DateTime dateInApiTimezone = dateFormat.parse(timestamp);
+        final DateTime dateInLocalTime = dateInApiTimezone.add(Duration(hours: timeZoneDifferenceInHours));
+        final DateTime scheduledDateTime = dateInLocalTime.add(const Duration(minutes: 2));
+
+        // print("\n        Alarm set to  =  ");
+        // print(scheduledDateTime);
+        // print("\nz=====@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@===z=z=z=z=z=zz=z=z=z=z=zz=z=z=z\n");
+
+        NotificationService.scheduleAlarm(scheduledDateTime);
+        _scaffoldMessengerKey.currentState?.showSnackBar(SnackBar(
+          content: Text('Alarm set for $text at ${scheduledDateTime.toString()}'),
+        ));
+      }
+      // else {
+      //   print("        Timestamp has not changed");
+      // }
+    } catch (error) {
+      _scaffoldMessengerKey.currentState?.showSnackBar(SnackBar(
+        content: Text('Failed to set alarm: $error'),
+      ));
+    }
   }
 
   Future<void> _setAlarmFromApi() async {
@@ -72,7 +134,7 @@ class _MyHomePageState extends State<MyHomePage> {
       final String timestamp = data['timestamp'];
       final String text = data['text'];
       // Replace this value with the actual time difference in hours
-      final int timeZoneDifferenceInHours = 6; // Change this value according to your time difference
+      const int timeZoneDifferenceInHours = 6; // Change this value according to your time difference
 
 
       final DateFormat dateFormat = DateFormat("yyyy-MM-dd HH:mm:ss");
@@ -80,9 +142,9 @@ class _MyHomePageState extends State<MyHomePage> {
       final DateTime dateInLocalTime = dateInApiTimezone.add(Duration(hours: timeZoneDifferenceInHours));
       final DateTime scheduledDateTime = dateInLocalTime.add(const Duration(minutes: 2));
 
-      print("z========z=z=z=z=z=zz=z=z=z=z=zz=z=z=z\n");
-      print(scheduledDateTime);
-      print("\nz========z=z=z=z=z=zz=z=z=z=z=zz=z=z=z\n");
+      // print("z========z=z=z=z=z=zz=z=z=z=z=zz=z=z=z\n");
+      // print(scheduledDateTime);
+      // print("\nz========z=z=z=z=z=zz=z=z=z=z=zz=z=z=z\n");
 
       NotificationService.scheduleAlarm(scheduledDateTime);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -113,6 +175,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldMessengerKey,
       appBar: AppBar(
         title: const Text('Alarm App'),
       ),
