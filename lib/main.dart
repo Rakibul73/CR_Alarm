@@ -1,9 +1,7 @@
 import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tz;
-import 'package:timezone/timezone.dart' as tz;
 import 'notification_service.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -44,7 +42,9 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
 Future<Map<String, dynamic>> fetchDataFromApi(String apiUrl) async {
+  // Request internet permission
   final response = await http.get(Uri.parse(apiUrl));
 
   if (response.statusCode == 200) {
@@ -53,6 +53,8 @@ Future<Map<String, dynamic>> fetchDataFromApi(String apiUrl) async {
     throw Exception('Failed to load data from API');
   }
 }
+
+
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
@@ -74,7 +76,7 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     NotificationService.init();
     _fetchApiAndSetAlarm(); // Call this function when the app starts
-    // Schedule a periodic Timer to call _fetchApiAndSetAlarm every 15 minutes
+    // Schedule a periodic Timer to call _fetchApiAndSetAlarm every 1 minutes
     _timer = Timer.periodic(const Duration(minutes: 1), (Timer timer) {
       // print("\n------repeting----up----\n");
       _fetchApiAndSetAlarm();
@@ -88,6 +90,9 @@ class _MyHomePageState extends State<MyHomePage> {
     _timer?.cancel();
     super.dispose();
   }
+
+  
+
 
   Future<void> _fetchApiAndSetAlarm() async {
     try {
@@ -156,6 +161,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ));
     }
   }
+
 
 
 
