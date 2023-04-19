@@ -22,11 +22,5 @@
   <string>1.0</string>
   <key>MinimumOSVersion</key>
   <string>11.0</string>
-  <key>UIBackgroundModes</key>
-  <array>
-    <string>audio</string>
-    <string>fetch</string>
-  </array>
-
 </dict>
 </plist>

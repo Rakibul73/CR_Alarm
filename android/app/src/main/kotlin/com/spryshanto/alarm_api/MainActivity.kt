@@ -1,4 +1,4 @@
-package com.example.alarm_app
+package com.spryshanto.alarm_api
 
 import io.flutter.embedding.android.FlutterActivity
 
