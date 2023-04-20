@@ -1,4 +1,4 @@
-package com.spryshanto.alarm_api
+package com.spryshanto.cr_alarm
 
 import io.flutter.embedding.android.FlutterActivity
 

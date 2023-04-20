@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.spryshanto.alarm_api">
+    package="com.spryshanto.cr_alarm">
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
@@ -7,7 +7,7 @@
 
     
    <application
-        android:label="alarm_api"
+        android:label="cr_alarm"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
