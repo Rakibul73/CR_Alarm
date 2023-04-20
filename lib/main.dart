@@ -6,6 +6,7 @@ import 'notification_service.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'dart:async';
+import 'package:flutter_alarm_clock/flutter_alarm_clock.dart';
 
 
 
@@ -34,7 +35,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'CR Post Alarm App',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -78,9 +79,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _fetchApiAndSetAlarm(); // Call this function when the app starts
     // Schedule a periodic Timer to call _fetchApiAndSetAlarm every 1 minutes
     _timer = Timer.periodic(const Duration(minutes: 1), (Timer timer) {
-      // print("\n------repeting----up----\n");
       _fetchApiAndSetAlarm();
-      // print("\n------repeting----Down----\n");
     });
   }
 
@@ -102,8 +101,6 @@ class _MyHomePageState extends State<MyHomePage> {
       // Replace this value with the actual time difference in hours
       const int timeZoneDifferenceInHours = 6; // Change this value according to your time difference
 
-      // print("\n     Latest timestamp: $_latestTimestamp");
-      // print("        New timestamp: $timestamp");
 
       if (timestamp != _latestTimestamp) {
         // If the timestamp has changed, set the alarm
@@ -114,18 +111,15 @@ class _MyHomePageState extends State<MyHomePage> {
         final DateTime dateInLocalTime = dateInApiTimezone.add(Duration(hours: timeZoneDifferenceInHours));
         final DateTime scheduledDateTime = dateInLocalTime.add(const Duration(minutes: 2));
 
-        // print("\n        Alarm set to  =  ");
-        // print(scheduledDateTime);
-        // print("\nz=====@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@===z=z=z=z=z=zz=z=z=z=z=zz=z=z=z\n");
 
-        NotificationService.scheduleAlarm(scheduledDateTime);
-        _scaffoldMessengerKey.currentState?.showSnackBar(SnackBar(
-          content: Text('Alarm set for $text at ${scheduledDateTime.toString()}'),
-        ));
+        int hour = scheduledDateTime.hour;
+        int minute = scheduledDateTime.minute;
+
+
+        // NotificationService.scheduleAlarm(scheduledDateTime);
+        // Create an alarm at 23:59
+        FlutterAlarmClock.createAlarm(hour, minute);
       }
-      // else {
-      //   print("        Timestamp has not changed");
-      // }
     } catch (error) {
       _scaffoldMessengerKey.currentState?.showSnackBar(SnackBar(
         content: Text('Failed to set alarm: $error'),
@@ -133,96 +127,29 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  Future<void> _setAlarmFromApi() async {
-    try {
-      final Map<String, dynamic> data = await fetchDataFromApi('https://web-production-5866.up.railway.app/latest_tweet');
-      final String timestamp = data['timestamp'];
-      final String text = data['text'];
-      // Replace this value with the actual time difference in hours
-      const int timeZoneDifferenceInHours = 6; // Change this value according to your time difference
-
-
-      final DateFormat dateFormat = DateFormat("yyyy-MM-dd HH:mm:ss");
-      final DateTime dateInApiTimezone = dateFormat.parse(timestamp);
-      final DateTime dateInLocalTime = dateInApiTimezone.add(Duration(hours: timeZoneDifferenceInHours));
-      final DateTime scheduledDateTime = dateInLocalTime.add(const Duration(minutes: 2));
-
-      // print("z========z=z=z=z=z=zz=z=z=z=z=zz=z=z=z\n");
-      // print(scheduledDateTime);
-      // print("\nz========z=z=z=z=z=zz=z=z=z=z=zz=z=z=z\n");
-
-      NotificationService.scheduleAlarm(scheduledDateTime);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Alarm set for $text at ${scheduledDateTime.toString()}'),
-      ));
-    } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Failed to set alarm: $error'),
-      ));
-    }
-  }
-
-
-
-
-
-  Future<void> _selectTime(BuildContext context) async {
-    final TimeOfDay? pickedTime = await showTimePicker(
-      context: context,
-      initialTime: _selectedTime,
-    );
-    if (pickedTime != null && pickedTime != _selectedTime) {
-      setState(() {
-        _selectedTime = pickedTime;
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldMessengerKey,
       appBar: AppBar(
-        title: const Text('Alarm App'),
+        title: const Text('CR Post Alarm App'),
+        centerTitle: true,
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'Selected Time: ${_selectedTime.format(context)}',
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            ElevatedButton(
-              onPressed: () => _selectTime(context),
-              child: const Text('Select Time'),
-            ),
+          child: Column(children: <Widget>[
+            SizedBox(height: 30),
             ElevatedButton(
               onPressed: () {
-                final now = DateTime.now();
-                final scheduledDate = DateTime(
-                  now.year,
-                  now.month,
-                  now.day,
-                  _selectedTime.hour,
-                  _selectedTime.minute,
-                );
-                if (scheduledDate.isBefore(now)) {
-                  // if the time has already passed, schedule for the next day
-                  scheduledDate.add(const Duration(days: 1));
-                }
-                NotificationService.scheduleAlarm(scheduledDate);
+                // show alarm
+                FlutterAlarmClock.showAlarms();
               },
-              child: const Text('Set Alarm'),
+              child: const Text(
+                'Show Alarms',
+                style: TextStyle(fontSize: 20.0),
+              ),
             ),
-            ElevatedButton(
-              onPressed: _setAlarmFromApi,
-              child: const Text('Set Alarm from API'),
-            ),
-
-          ],
-        ),
-      ),
+      ])),
     );
   }
 }
