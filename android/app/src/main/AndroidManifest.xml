@@ -7,7 +7,7 @@
 
     
    <application
-        android:label="cr_alarm"
+        android:label="CR Alarm"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
