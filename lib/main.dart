@@ -118,7 +118,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
         // NotificationService.scheduleAlarm(scheduledDateTime);
         // Create an alarm at 23:59
-        FlutterAlarmClock.createAlarm(hour, minute);
+        FlutterAlarmClock.createAlarm(hour, minute , title: "CR Posted" );
       }
     } catch (error) {
       _scaffoldMessengerKey.currentState?.showSnackBar(SnackBar(
