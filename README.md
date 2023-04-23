@@ -1,16 +1,31 @@
-# alarm_app
+<div align="center">
+  <h1>CR Alarm</h1>
 
-A new Flutter project.
 
-## Getting Started
+> Autmatic alarm - based on latest tweet
 
-This project is a starting point for a Flutter application.
+[![](https://skillicons.dev/icons?i=flutter,dart,vscode,androidstudio)]()
+</div>
+<hr/>
+The CR Alarm App is a Flutter-based Android app that auto set alarms based on the timestamp of the latest tweets from a specific Twitter user. Every minute the app fetches the timestamp from api and create the alarms. When that specific user tweets and it sets an alarm so that you don't miss that user's posts, even if you sleep.
+<hr/>
 
-A few resources to get you started if this is your first Flutter project:
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## Installation
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+* You should have properly installed `flutter` & `Emuletor` in your machine.
+* Clone the repository to your local machine.
+* Run this in terminal to install the required packages.
+```bash
+flutter packages get
+```
+* Run the app using
+```bash
+flutter run
+```
+
+## Acknowledgements
+
+- [Flutter Alarm Clock](https://pub.dev/packages/flutter_alarm_clock) library
+- [Twitter Tweets API](https://github.com/Rakibul73/twitter_tweets_api)
+- [Twitter Developer API](https://developer.twitter.com/en/docs)
