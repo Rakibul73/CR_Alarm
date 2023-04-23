@@ -7,7 +7,7 @@
 [![](https://skillicons.dev/icons?i=flutter,dart,vscode,androidstudio)]()
 </div>
 <hr/>
-The CR Alarm App is a Flutter-based Android app that auto set alarms based on the timestamp of the latest tweets from a specific Twitter user. Every minute the app fetches the timestamp from api and create the alarms. When that specific user tweets and it sets an alarm so that you don't miss that user's posts, even if you sleep.
+The CR Alarm App is a Flutter-based Android app that auto set alarms based on the time of the latest tweets of a specific Twitter user that fetches from api. When that specific user tweets and it sets an alarm so that you don't miss that user's posts, even if you sleep.
 <hr/>
 
 
