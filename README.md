@@ -11,7 +11,7 @@ The CR Alarm App is a Flutter-based Android app that auto set alarms based on th
 <hr/>
 
 
-<!-- ROADMAP -->
+## Download latest version from [here](https://github.com/Rakibul73/CR_Alarm/releases/latest)
 ## Features
 
 - [x] Auto sets alarm
