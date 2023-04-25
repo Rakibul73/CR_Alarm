@@ -11,6 +11,22 @@ The CR Alarm App is a Flutter-based Android app that auto set alarms based on th
 <hr/>
 
 
+<!-- ROADMAP -->
+## Features
+
+- [x] Auto sets alarm
+- [x] Making a api backend & hosting
+- [x] Auto fetching tweets/post from api
+- [ ] Adding Background service (App can be closed from recent tab)
+- [ ] Making a functional UI
+- [ ] Allow users the ability to select whose tweets or posts they want to follow.
+<!-- - [ ] Multi-language Support
+    - [ ] Chinese
+    - [ ] Spanish -->
+
+
+
+
 ## Installation
 
 * You should have properly installed `flutter` & `Emuletor` in your machine.
