@@ -17,7 +17,7 @@ The CR Alarm App is a Flutter-based Android app that auto set alarms based on th
 - [x] Auto sets alarm
 - [x] Making a api backend & hosting
 - [x] Auto fetching tweets/post from api
-- [ ] Adding Background service (App can be closed from recent tab)
+- [x] Adding Background service (App can be closed from recent tab)
 - [ ] Making a functional UI
 - [ ] Allow users the ability to select whose tweets or posts they want to follow.
 <!-- - [ ] Multi-language Support
@@ -42,6 +42,9 @@ flutter run
 
 ## Acknowledgements
 
-- [Flutter Alarm Clock](https://pub.dev/packages/flutter_alarm_clock) library
+- [Android Intent Plus](https://pub.dev/packages/android_intent_plus) library for alarm
+- removed ~~[Flutter Alarm Clock](https://pub.dev/packages/flutter_alarm_clock) library for making an alarm~~
 - [Twitter Tweets API](https://github.com/Rakibul73/twitter_tweets_api)
+- [WorkManager](https://pub.dev/packages/workmanager) library for making periodic task
+- [SharedPreferences](https://pub.dev/packages/shared_preferences) library for persistent storage
 - [Twitter Developer API](https://developer.twitter.com/en/docs)
