@@ -1,28 +1,19 @@
 import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
-import 'package:timezone/data/latest.dart' as tz;
+import 'package:permission_handler/permission_handler.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:android_intent_plus/flag.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:workmanager/workmanager.dart';
+import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:platform/platform.dart';
 
 
 const simplePeriodicTask = "simplePeriodicTask";
 const latestTimestampKey = "latestTimestamp";
-
-@pragma('vm:entry-point') // Mandatory if the App is obfuscated or using Flutter 3.1+
-void callbackDispatcher() {
-  Workmanager().executeTask((task, inputData) async {
-    await _createAlarm();
-    // Return true when the task is completed successfully
-    return Future.value(true);
-  });
-}
 
 class PostHttpOverrides extends HttpOverrides{
   @override
@@ -32,6 +23,7 @@ class PostHttpOverrides extends HttpOverrides{
   }
 }
 
+@pragma('vm:entry-point') // Mandatory if the App is obfuscated or using Flutter 3.1+
 Future<void> _createAlarm() async {
   // Retrieve the latest timestamp from shared preferences
   final prefs = await SharedPreferences.getInstance();
@@ -41,7 +33,6 @@ Future<void> _createAlarm() async {
   if (response.statusCode == 200) {
     final Map<String, dynamic> data =  json.decode(response.body);
     final String timestamp = data['timestamp'];
-    const int timeZoneDifferenceInHours = 6;
     // Checking if the timestamp has changed or not
     if (timestamp != latestTimestamp) {
       // saving the latest timestamp to shared preferences for next time
@@ -66,14 +57,11 @@ Future<void> _createAlarm() async {
             'android.intent.extra.alarm.MESSAGE': 'CR Posted',
           },
         );
-        intent.launch();
+        await intent.launch();
       } 
       catch (e) {
-        print('Error creating alarm: callbackDispatcher= $e');
+        throw Exception('Error creating alarm: $e');
       }
-    }
-    else {
-      print("\ntimestamp === latestTimestamp\n");
     }
   } 
   else {
@@ -84,15 +72,19 @@ Future<void> _createAlarm() async {
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = new PostHttpOverrides();
-  Workmanager().initialize(callbackDispatcher);
-  // Registering periodic task for every 15 minutes
-  Workmanager().registerPeriodicTask(simplePeriodicTask , simplePeriodicTask,
-        frequency: const Duration(minutes: 15));
+  await AndroidAlarmManager.initialize();
+  await AndroidAlarmManager.periodic(const Duration(minutes: 5), 4, _createAlarm,
+      exact: true,
+      wakeup: true,
+      allowWhileIdle: true,
+      rescheduleOnReboot: true);
 
   runApp(MyApp());
 }
 
 class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
   @override
   _MyAppState createState() => _MyAppState();
 }
@@ -101,6 +93,14 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    requestPermissions();
+  }
+
+  Future<void> requestPermissions() async {
+    PermissionStatus status = await Permission.ignoreBatteryOptimizations.status;
+    if (!status.isGranted) {
+      status = await Permission.ignoreBatteryOptimizations.request();
+    }
   }
 
   @override

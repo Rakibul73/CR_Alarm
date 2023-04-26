@@ -45,6 +45,7 @@ flutter run
 - [Android Intent Plus](https://pub.dev/packages/android_intent_plus) library for alarm
 - removed ~~[Flutter Alarm Clock](https://pub.dev/packages/flutter_alarm_clock) library for making an alarm~~
 - [Twitter Tweets API](https://github.com/Rakibul73/twitter_tweets_api)
-- [WorkManager](https://pub.dev/packages/workmanager) library for making periodic task
+- [Android Alarm Manager Plus](https://pub.dev/packages/android_alarm_manager_plus) library for making background task
+- removed ~~[WorkManager](https://pub.dev/packages/workmanager) library for making background task~~
 - [SharedPreferences](https://pub.dev/packages/shared_preferences) library for persistent storage
 - [Twitter Developer API](https://developer.twitter.com/en/docs)
