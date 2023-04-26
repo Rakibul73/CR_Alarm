@@ -29,7 +29,7 @@ Future<void> _createAlarm() async {
   final prefs = await SharedPreferences.getInstance();
   String? latestTimestamp = prefs.getString(latestTimestampKey);
   // Fetching data from API
-  final response = await http.get(Uri.parse("https://web-production-5866.up.railway.app/latest_tweet"));
+  final response = await http.get(Uri.parse("https://web-production-5866.up.railway.app/latest_tweet/shanto_spry"));
   if (response.statusCode == 200) {
     final Map<String, dynamic> data =  json.decode(response.body);
     final String timestamp = data['timestamp'];
