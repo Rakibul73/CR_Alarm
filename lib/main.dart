@@ -29,7 +29,7 @@ Future<void> _createAlarm() async {
   final prefs = await SharedPreferences.getInstance();
   String? latestTimestamp = prefs.getString(latestTimestampKey);
   // Fetching data from API
-  final response = await http.get(Uri.parse("https://web-production-5866.up.railway.app/latest_tweet/shanto_spry"));
+  final response = await http.get(Uri.parse("https://twitter-tweets-api.vercel.app/latest_tweet/shanto_spry"));
   if (response.statusCode == 200) {
     final Map<String, dynamic> data =  json.decode(response.body);
     final String timestamp = data['timestamp'];
@@ -70,10 +70,11 @@ Future<void> _createAlarm() async {
 }
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = new PostHttpOverrides();
+  WidgetsFlutterBinding.ensureInitialized();
+  
   await AndroidAlarmManager.initialize();
-  await AndroidAlarmManager.periodic(const Duration(minutes: 5), 4, _createAlarm,
+  await AndroidAlarmManager.periodic(const Duration(minutes: 2), 4, _createAlarm,
       exact: true,
       wakeup: true,
       allowWhileIdle: true,
