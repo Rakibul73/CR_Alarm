@@ -74,7 +74,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
   await AndroidAlarmManager.initialize();
-  await AndroidAlarmManager.periodic(const Duration(minutes: 2), 4, _createAlarm,
+  await AndroidAlarmManager.periodic(const Duration(minutes: 5), 4, _createAlarm,
       exact: true,
       wakeup: true,
       allowWhileIdle: true,
