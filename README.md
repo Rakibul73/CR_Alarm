@@ -11,9 +11,9 @@ The CR Alarm App is a Flutter-based Android app that auto set alarms based on th
 <hr/>
 
 ## One usecase
-Suppose In university, there is a CR(Class Representative) in your class. He recieves the class schedule from teachers and post it in fb group. But you don't know when he will post or sometimes teachers tell the CR about class schedule 15/30 minutes before when you are in sound sleep..... so you know !! Now it will be amazing if there is an alarm app that can rings only when CR posted a class schedule. Now you don't have to miss any class again in you life. 
-But it's now only support twitter post/tweets. if this CR person post a tweet in twiiter only then it sets alarm.
-FB support will add in future.
+Suppose In university, there is a CR (Class Representative) in your class. He posts the class schedule that he receives from the teachers in a Facebook group. However, you never know when he will post, and sometimes teachers may inform the CR of the class schedule 15 or 30 minutes in advance while you are fast asleep. Now imagine if there was an alarm clock app that would only sound when CR published a class schedule. You are no longer need to miss classes in the future. 
+However, it currently only supports Twitter tweets. It raises alarm if this CR person tweets only on Twitter. Facebook support will be implemented in the future.
+
 
 ## Download latest version from [here](https://github.com/Rakibul73/CR_Alarm/releases/latest)
 ## Features
