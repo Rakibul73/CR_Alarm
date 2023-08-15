@@ -24,7 +24,7 @@ However, it currently only supports Twitter tweets. It raises alarm if this CR p
 - [x] Adding Background service (App can be closed from recent tab)
 - [ ] Making a functional UI
 - [ ] Allow users the ability to select whose tweets or posts they want to follow.
-- [ ] Adding Facebook api support
+- [x] Adding Facebook api support (only when FB Group is public)
 - [ ] Allow users the ability to select which group posts they want to follow.
 <!-- - [ ] Multi-language Support
     - [ ] Chinese

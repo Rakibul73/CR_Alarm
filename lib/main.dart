@@ -29,7 +29,7 @@ Future<void> _createAlarm() async {
   final prefs = await SharedPreferences.getInstance();
   String? latestTimestamp = prefs.getString(latestTimestampKey);
   // Fetching data from API
-  final response = await http.get(Uri.parse("https://twitter-tweets-api.vercel.app/latest_tweet/shanto_spry"));
+  final response = await http.get(Uri.parse("https://fb-grp-api.vercel.app/latest_post/3511424965737970"));
   if (response.statusCode == 200) {
     final Map<String, dynamic> data =  json.decode(response.body);
     final String timestamp = data['timestamp'];
