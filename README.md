@@ -22,10 +22,11 @@ However, it currently only supports Twitter tweets. It raises alarm if this CR p
 - [x] Making a api backend & hosting
 - [x] Auto fetching tweets/post from api
 - [x] Adding Background service (App can be closed from recent tab)
-- [ ] Making a functional UI
-- [ ] Allow users the ability to select whose tweets or posts they want to follow.
+- [x] Making a functional UI
 - [x] Adding Facebook api support (only when FB Group is public)
-- [ ] Allow users the ability to select which group posts they want to follow.
+- [x] Allow users the ability to select which group posts they want to follow.
+- [ ] Allow users the ability to select whose tweets they want to follow.
+
 <!-- - [ ] Multi-language Support
     - [ ] Chinese
     - [ ] Spanish -->
@@ -51,7 +52,10 @@ flutter run
 - [Android Intent Plus](https://pub.dev/packages/android_intent_plus) library for alarm
 - removed ~~[Flutter Alarm Clock](https://pub.dev/packages/flutter_alarm_clock) library for making an alarm~~
 - [Twitter Tweets API](https://github.com/Rakibul73/twitter_tweets_api)
+- [fb grp API](https://github.com/Rakibul73/fb_grp_api)
 - [Android Alarm Manager Plus](https://pub.dev/packages/android_alarm_manager_plus) library for making background task
+- [Flutter Facebook Auth](https://pub.dev/packages/flutter_facebook_auth) library for making fb login & getting user access_token
 - removed ~~[WorkManager](https://pub.dev/packages/workmanager) library for making background task~~
 - [SharedPreferences](https://pub.dev/packages/shared_preferences) library for persistent storage
 - [Twitter Developer API](https://developer.twitter.com/en/docs)
+- [Facebook Developer API](https://developers.facebook.com/docs/)
