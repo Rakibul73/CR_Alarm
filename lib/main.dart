@@ -12,8 +12,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:platform/platform.dart';
 
-
-const simplePeriodicTask = "simplePeriodicTask";
 const latestTimestampKey = "latestTimestamp";
 const selectedGroupIdKey = "selectedGroupId";
 
@@ -35,8 +33,7 @@ Future<void> _createAlarm() async {
   // Retrieve the selected group ID from shared preferences
   final selectedGroupId = prefs.getString(selectedGroupIdKey);
   if (selectedGroupId == null) {
-    // Handle the case where selectedGroupId is null
-    print("Selected group ID is null");
+    // if selectedGroupId is null, don't make api call and create the alarm
     return;
   }
 
@@ -88,7 +85,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
   await AndroidAlarmManager.initialize();
-  await AndroidAlarmManager.periodic(const Duration(seconds: 30), 4, _createAlarm,
+  await AndroidAlarmManager.periodic(const Duration(minutes: 5), 4, _createAlarm,
       exact: true,
       wakeup: true,
       allowWhileIdle: true,
@@ -135,6 +132,7 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
+  // Fetch user groups using Facebook Graph API
   Future<void> _fetchUserGroups(String accessToken) async {
     final response = await http.get(
       Uri.parse('https://graph.facebook.com/v17.0/me/groups'),
@@ -156,11 +154,10 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
+  // Save selected group ID to shared preferences
   Future<void> _saveGroupId() async {
-    // Save selected group ID to shared preferences
     final prefs = await SharedPreferences.getInstance();
     prefs.setString(selectedGroupIdKey, selectedGroupId!);
-    print("================xxxxxxxxxxxxxxxx================");
   }
 
   Future<void> _loginWithFacebook() async {
@@ -210,9 +207,6 @@ class _MyAppState extends State<MyApp> {
                     });
                   },
                 ),
-
-                
-              
               if (selectedGroupId != null)
                 ElevatedButton(
                   onPressed: _saveGroupId,
@@ -225,8 +219,6 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
-
-
 
 class Group {
   final String id;
