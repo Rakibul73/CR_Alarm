@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
@@ -80,7 +81,10 @@ Future<void> main() async {
   HttpOverrides.global = new PostHttpOverrides();
   WidgetsFlutterBinding.ensureInitialized();
   await AndroidAlarmManager.initialize();
-  runApp(MyApp());
+  // runApp(MyApp());
+  runApp(MaterialApp(
+    home: MyApp(),
+  ));
 }
 
 class MyApp extends StatefulWidget {
@@ -171,7 +175,7 @@ class _MyAppState extends State<MyApp> {
               if (_accessToken == null)
                 ElevatedButton(
                   onPressed: _loginWithFacebook,
-                  child: const Text('Login with Facebook'),
+                  child: Text('Login with Facebook'),
                 ),
               if (_accessToken != null)
                 DropdownButton<String>(
@@ -201,11 +205,36 @@ class _MyAppState extends State<MyApp> {
                       // Pass the selected group ID as a parameter
                       params: {'selectedGroupId': selectedGroupId}).then((val) => print('set up:$val'));
                   },
-                  child: const Text('Save the Group for Alarm'),
+                  child: Text('Start CR Alarm'),
                 ),
+              if (selectedGroupId != null)
                 ElevatedButton(
-                  onPressed: cancel,
-                  child: const Text('Cancel the Alarm'),
+                  child: Text('Cancel Alarm'),
+                  onPressed: () {
+                    AwesomeDialog(
+                      context: context,
+                      dialogType: DialogType.error,
+                      borderSide: const BorderSide(
+                        color: Colors.green,
+                        width: 2,
+                      ),
+                      width: 300,
+                      buttonsBorderRadius: const BorderRadius.all(
+                        Radius.circular(25),
+                      ),
+                      dismissOnTouchOutside: false,
+                      dismissOnBackKeyPress: false,
+                      headerAnimationLoop: true,
+                      animType: AnimType.bottomSlide,
+                      title: 'Cancel Alarm?',
+                      desc: 'Press OK button to cancel all the fb group alarm.',
+                      showCloseIcon: false,
+                      btnCancelOnPress: () {},
+                      btnOkOnPress: () {cancel();},
+                      buttonsTextStyle: const TextStyle(color: Colors.black),
+                      reverseBtnOrder: true,
+                    ).show();
+                  },
                 ),
             ],
           ),
@@ -228,3 +257,4 @@ class Group {
     );
   }
 }
+
