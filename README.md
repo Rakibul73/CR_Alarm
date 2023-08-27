@@ -53,6 +53,7 @@ flutter run
 - [Twitter Tweets API](https://github.com/Rakibul73/twitter_tweets_api)
 - [fb grp API](https://github.com/Rakibul73/fb_grp_api)
 - [Android Alarm Manager Plus](https://pub.dev/packages/android_alarm_manager_plus) library for making background task
+- [Awesome Dialog](https://pub.dev/packages/awesome_dialog) library for making awesome dialog ui
 - [Flutter Facebook Auth](https://pub.dev/packages/flutter_facebook_auth) library for making fb login & getting user access_token
 - removed ~~[WorkManager](https://pub.dev/packages/workmanager) library for making background task~~
 - [SharedPreferences](https://pub.dev/packages/shared_preferences) library for persistent storage

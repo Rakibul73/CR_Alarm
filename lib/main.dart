@@ -197,7 +197,7 @@ class _MyAppState extends State<MyApp> {
                 ElevatedButton(
                   onPressed: () async {
                     // Set a repeating alarm with the selected group ID as a parameter
-                    await AndroidAlarmManager.periodic(const Duration(minutes: 1), 4, _createAlarm,
+                    await AndroidAlarmManager.periodic(const Duration(minutes: 5), 4, _createAlarm,
                       exact: true,
                       wakeup: true,
                       allowWhileIdle: true,
