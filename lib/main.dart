@@ -15,7 +15,6 @@ import 'package:platform/platform.dart';
 const latestTimestampKey = "latestTimestamp";
 const selectedGroupIdKey = "selectedGroupId";
 
-
 class PostHttpOverrides extends HttpOverrides{
   @override
   HttpClient createHttpClient(context){
@@ -25,17 +24,30 @@ class PostHttpOverrides extends HttpOverrides{
 }
 
 @pragma('vm:entry-point') // Mandatory if the App is obfuscated or using Flutter 3.1+
-Future<void> _createAlarm() async {
+Future<void> _createAlarm(int id, Map<String, dynamic> params) async {
+  print("xxxxxxxxxxxxxxxxxxxxxxxxx   _createAlarm");
+  print(DateTime.now());
+
   // Retrieve the latest timestamp from shared preferences
-  final prefs = await SharedPreferences.getInstance();
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  // prefs.reload();  // The magic line 
   String? latestTimestamp = prefs.getString(latestTimestampKey);
+  print("xxxxxxxxxxxxxxxxxxxxxxxxx   latestTimestamp: $latestTimestamp");
+
+  // Retrieve the selected group ID from the params map
+  String selectedGroupId = params['selectedGroupId'];
+  print("xxxxxxxxxxxxxxxxxxxxxxxxx   selectedGroupId: $selectedGroupId");
 
   // Retrieve the selected group ID from shared preferences
-  final selectedGroupId = prefs.getString(selectedGroupIdKey);
-  if (selectedGroupId == null) {
-    // if selectedGroupId is null, don't make api call and create the alarm
-    return;
-  }
+  // final SharedPreferences prefs2 = await SharedPreferences.getInstance();
+  // await prefs2.reload();  // The magic line 
+  // String? selectedGroupId = prefs2.getString(selectedGroupIdKey);
+  // print("xxxxxxxxxxxxxxxxxxxxxxxxx   selectedGroupId: $selectedGroupId");
+  // bool CheckValue = prefs.containsKey(selectedGroupIdKey);
+  // if (selectedGroupId == null) {
+  //   // if selectedGroupId is null, don't make api call and create the alarm
+  //   return;
+  // }
 
   // Fetching data from API
   final response = await http.get(Uri.parse("https://fb-grp-api.vercel.app/latest_post/$selectedGroupId"));
@@ -46,11 +58,12 @@ Future<void> _createAlarm() async {
     if (timestamp != latestTimestamp) {
       // saving the latest timestamp to shared preferences for next time
       latestTimestamp = timestamp;
+      // prefs.reload();  // The magic line 
       prefs.setString(latestTimestampKey, latestTimestamp);
       // setting the alarm 1 minute after the fetching data
       // means when the app fetches the data, it will create the alarm 1 minute after that
       final DateTime scheduleddatetimeNow = DateTime.now();
-      final DateTime scheduleddatetimeNowNow = scheduleddatetimeNow.add(const Duration(minutes: 1));
+      final DateTime scheduleddatetimeNowNow = scheduleddatetimeNow.add(const Duration(minutes: 2));
       int hour = scheduleddatetimeNowNow.hour;
       int minute = scheduleddatetimeNowNow.minute;
       int hh = hour;
@@ -85,11 +98,13 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
   await AndroidAlarmManager.initialize();
-  await AndroidAlarmManager.periodic(const Duration(minutes: 5), 4, _createAlarm,
-      exact: true,
-      wakeup: true,
-      allowWhileIdle: true,
-      rescheduleOnReboot: true);
+  // await AndroidAlarmManager.periodic(const Duration(minutes: 1), 4, _createAlarm,
+  //     exact: true,
+  //     wakeup: true,
+  //     allowWhileIdle: true,
+  //     rescheduleOnReboot: true,
+  //     // Pass the selected group ID as a parameter
+  //     params: {'selectedGroupId': selectedGroupId}).then((val) => print('set up:$val'));
 
   runApp(MyApp());
 }
@@ -107,12 +122,23 @@ class _MyAppState extends State<MyApp> {
   List<Group> _groups = [];
   String? selectedGroupId;
 
+
   @override
   void initState() {
     super.initState();
     requestPermissions();
     _checkFacebookLoginStatus();
   }
+
+  // void startAlarm() {
+  //   print("xxxxxxxxxxxxxxxxxxxxxxxxx   startAlarm");
+  //   AndroidAlarmManager.periodic(const Duration(minutes: 1), 4, _createAlarm,
+  //     exact: true,
+  //     wakeup: true,
+  //     allowWhileIdle: true,
+  //     rescheduleOnReboot: true);
+  //   print("xxxxxxxxxxxxxxxxxxxxxxxxx   endAlarm");
+  // }
 
   Future<void> requestPermissions() async {
     PermissionStatus status = await Permission.ignoreBatteryOptimizations.status;
@@ -131,6 +157,7 @@ class _MyAppState extends State<MyApp> {
       await _fetchUserGroups(accessToken.token);
     }
   }
+
 
   // Fetch user groups using Facebook Graph API
   Future<void> _fetchUserGroups(String accessToken) async {
@@ -155,9 +182,17 @@ class _MyAppState extends State<MyApp> {
   }
 
   // Save selected group ID to shared preferences
-  Future<void> _saveGroupId() async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setString(selectedGroupIdKey, selectedGroupId!);
+  // Future<void> _saveGroupId() async {
+  //   // SharedPreferences prefs2 = await SharedPreferences.getInstance();
+  //   // prefs2.reload();  // The magic line 
+  //   // prefs2.setString(selectedGroupIdKey, selectedGroupId!);
+  //   print("xxxxxxxxxxxxxxxxxx  _saveGroupId: $selectedGroupId");
+  //   print(DateTime.now());
+  // }
+
+  Future<void> cancel() async {
+    await AndroidAlarmManager.cancel(4);
+    print("canceled");
   }
 
   Future<void> _loginWithFacebook() async {
@@ -186,11 +221,51 @@ class _MyAppState extends State<MyApp> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+                ElevatedButton(
+                  onPressed: cancel,
+                  child: Text('Cancel the alarm'),
+                ),
               if (_accessToken == null)
                 ElevatedButton(
                   onPressed: _loginWithFacebook,
                   child: Text('Login with Facebook'),
                 ),
+                // DropdownButton<String>(
+                //   isDense: true,
+                //   value: selectedGroupId,
+                //   items: const [
+                //     DropdownMenuItem<String>(
+                //       value: '803298074774822',
+                //       child: Text('803298074774822'),
+                //     ),
+                //     DropdownMenuItem<String>(
+                //       value: '3511424965737970',
+                //       child: Text('3511424965737970'),
+                //     ),
+                //   ],
+                //   onChanged: (value) {
+                //     setState(() {
+                //       selectedGroupId = value;
+                //     });
+                //   },
+                // ),
+                // ElevatedButton(
+                //   onPressed: () async {
+                //     final prefs = await SharedPreferences.getInstance();
+                //     prefs.setString(selectedGroupIdKey, selectedGroupId!);
+                //     print("xxxxxxxxxxxxxxxxxxxxxxxxx   selectedGroupId: $selectedGroupId");
+
+                //     // Set a repeating alarm with the selected group ID as a parameter
+                //     await AndroidAlarmManager.periodic(const Duration(minutes: 1), 4, _createAlarm,
+                //       exact: true,
+                //       wakeup: true,
+                //       allowWhileIdle: true,
+                //       rescheduleOnReboot: true,
+                //       // Pass the selected group ID as a parameter
+                //       params: {'selectedGroupId': selectedGroupId}).then((val) => print('set up:$val'));
+                //   },
+                //   child: const Text('Save the Group for Alarm'),
+                // ),
               if (_accessToken != null)
                 DropdownButton<String>(
                   isDense: true, // Add this line
@@ -209,8 +284,21 @@ class _MyAppState extends State<MyApp> {
                 ),
               if (selectedGroupId != null)
                 ElevatedButton(
-                  onPressed: _saveGroupId,
-                  child: Text('Save the Group for Alarm'),
+                  onPressed: () async {
+                    final prefs = await SharedPreferences.getInstance();
+                    prefs.setString(selectedGroupIdKey, selectedGroupId!);
+                    print("xxxxxxxxxxxxxxxxxxxxxxxxx   selectedGroupId: $selectedGroupId");
+
+                    // Set a repeating alarm with the selected group ID as a parameter
+                    await AndroidAlarmManager.periodic(const Duration(minutes: 1), 4, _createAlarm,
+                      exact: true,
+                      wakeup: true,
+                      allowWhileIdle: true,
+                      rescheduleOnReboot: true,
+                      // Pass the selected group ID as a parameter
+                      params: {'selectedGroupId': selectedGroupId}).then((val) => print('set up:$val'));
+                  },
+                  child: const Text('Save the Group for Alarm'),
                 ),
             ],
           ),
