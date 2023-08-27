@@ -171,7 +171,7 @@ class _MyAppState extends State<MyApp> {
               if (_accessToken == null)
                 ElevatedButton(
                   onPressed: _loginWithFacebook,
-                  child: Text('Login with Facebook'),
+                  child: const Text('Login with Facebook'),
                 ),
               if (_accessToken != null)
                 DropdownButton<String>(
@@ -205,7 +205,7 @@ class _MyAppState extends State<MyApp> {
                 ),
                 ElevatedButton(
                   onPressed: cancel,
-                  child: Text('Cancel the Alarm'),
+                  child: const Text('Cancel the Alarm'),
                 ),
             ],
           ),
