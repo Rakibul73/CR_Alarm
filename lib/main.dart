@@ -98,6 +98,9 @@ class _MyAppState extends State<MyApp> {
   AccessToken? _accessToken;
   List<Group> _groups = [];
   String? selectedGroupId;
+  // int batchStart = 0;
+  String? nextPageCursor;
+  String? previousPageCursor;
 
   @override
   void initState() {
@@ -105,6 +108,56 @@ class _MyAppState extends State<MyApp> {
     requestPermissions();
     _checkFacebookLoginStatus();
   }
+
+  void fetchNextBatch() async {
+    if (nextPageCursor == null) {
+      print("nextPageCursor is ===== $nextPageCursor");
+      return;
+    }
+    print("zzzzzzzzzzzzzzzzz is ===== $nextPageCursor");
+    await _fetchUserGroupsBatch(_accessToken!.token, nextPageCursor , 1);
+  }
+
+  void fetchPreviousBatch() async {
+    if (previousPageCursor == null) {
+      print("previousPageCursor is ===== $previousPageCursor");
+      return;
+    }
+    print("zzzzzzzzzzzzzzzzz is ===== $previousPageCursor");
+    await _fetchUserGroupsBatch(_accessToken!.token, previousPageCursor , 2);
+  }
+
+  Future<void> _fetchUserGroupsBatch(String accessToken, String? pageCursor , int zz) async {
+    String url = 'https://graph.facebook.com/v17.0/me/groups';
+    if (pageCursor != null && zz == 1) {
+      url += '?after=$pageCursor';
+    }
+    if (pageCursor != null && zz == 2) {
+      url += '?before=$pageCursor';
+    }
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final groups = List<Group>.from(
+        data['data'].map((group) => Group.fromJson(group)),
+      );
+      nextPageCursor = data['paging']['cursors']['after'];
+      previousPageCursor = data['paging']['cursors']['before'];
+
+      setState(() {
+        _groups = groups;
+        selectedGroupId = null; // Reset selected group
+      });
+    } else {
+      throw Exception('Failed to fetch groups');
+    }
+  }
+
 
   Future<void> requestPermissions() async {
     PermissionStatus status = await Permission.ignoreBatteryOptimizations.status;
@@ -135,6 +188,8 @@ class _MyAppState extends State<MyApp> {
       final groups = List<Group>.from(
         data['data'].map((group) => Group.fromJson(group)),
       );
+      nextPageCursor = data['paging']['cursors']['after'];
+      previousPageCursor = data['paging']['cursors']['before'];
       setState(() {
         _groups = groups;
       });
@@ -193,11 +248,44 @@ class _MyAppState extends State<MyApp> {
                     });
                   },
                 ),
+              const SizedBox(height: 20),
               if (selectedGroupId != null)
+                Column(
+                  children: [
+                    const Text(
+                      'You selected: ',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      'Group ID: $selectedGroupId',
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                    Text(
+                      'Group Name: ${_groups.firstWhere((group) => group.id == selectedGroupId).name}',
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                  ],
+                ),
+              
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      child: Text('Fetch Previous'),
+                      onPressed: fetchPreviousBatch,
+                    ),
+                    SizedBox(width: 16), // Add spacing between buttons
+                    ElevatedButton(
+                      child: Text('Fetch Next'),
+                      onPressed: fetchNextBatch,
+                    ),
+                  ],
+                ),
+              // if (selectedGroupId != null)
                 ElevatedButton(
                   onPressed: () async {
                     // Set a repeating alarm with the selected group ID as a parameter
-                    await AndroidAlarmManager.periodic(const Duration(minutes: 5), 4, _createAlarm,
+                    await AndroidAlarmManager.periodic(const Duration(minutes: 1), 4, _createAlarm,
                       exact: true,
                       wakeup: true,
                       allowWhileIdle: true,
@@ -207,7 +295,7 @@ class _MyAppState extends State<MyApp> {
                   },
                   child: Text('Start CR Alarm'),
                 ),
-              if (selectedGroupId != null)
+              // if (selectedGroupId != null)
                 ElevatedButton(
                   child: Text('Cancel Alarm'),
                   onPressed: () {
