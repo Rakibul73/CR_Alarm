@@ -24,17 +24,13 @@ class PostHttpOverrides extends HttpOverrides{
 }
 
 @pragma('vm:entry-point') // Mandatory if the App is obfuscated or using Flutter 3.1+
-Future<void> _createAlarm(int id, Map<String, dynamic> params) async {
+Future<void> _createAlarm() async {
   // Retrieve the latest timestamp from shared preferences
   final SharedPreferences prefs = await SharedPreferences.getInstance();
-  // prefs.reload();  // The magic line 
   String? latestTimestamp = prefs.getString(latestTimestampKey);
 
-  // Retrieve the selected group ID from the params map
-  String selectedGroupId = params['selectedGroupId'];
-
   // Fetching data from API
-  final response = await http.get(Uri.parse("https://fb-grp-api.vercel.app/latest_post/$selectedGroupId"));
+  final response = await http.get(Uri.parse("https://tuimorsala.pythonanywhere.com/get_timestamp"));
   if (response.statusCode == 200) {
     final Map<String, dynamic> data =  json.decode(response.body);
     final String timestamp = data['timestamp'];
@@ -42,7 +38,6 @@ Future<void> _createAlarm(int id, Map<String, dynamic> params) async {
     if (timestamp != latestTimestamp) {
       // saving the latest timestamp to shared preferences for next time
       latestTimestamp = timestamp;
-      // prefs.reload();  // The magic line 
       prefs.setString(latestTimestampKey, latestTimestamp);
       // setting the alarm 1 minute after the fetching data
       // means when the app fetches the data, it will create the alarm 1 minute after that
@@ -81,7 +76,6 @@ Future<void> main() async {
   HttpOverrides.global = new PostHttpOverrides();
   WidgetsFlutterBinding.ensureInitialized();
   await AndroidAlarmManager.initialize();
-  // runApp(MyApp());
   runApp(MaterialApp(
     home: MyApp(),
   ));
@@ -98,7 +92,6 @@ class _MyAppState extends State<MyApp> {
   AccessToken? _accessToken;
   List<Group> _groups = [];
   String? selectedGroupId;
-  // int batchStart = 0;
   String? nextPageCursor;
   String? previousPageCursor;
 
@@ -111,19 +104,15 @@ class _MyAppState extends State<MyApp> {
 
   void fetchNextBatch() async {
     if (nextPageCursor == null) {
-      print("nextPageCursor is ===== $nextPageCursor");
       return;
     }
-    print("zzzzzzzzzzzzzzzzz is ===== $nextPageCursor");
     await _fetchUserGroupsBatch(_accessToken!.token, nextPageCursor , 1);
   }
 
   void fetchPreviousBatch() async {
     if (previousPageCursor == null) {
-      print("previousPageCursor is ===== $previousPageCursor");
       return;
     }
-    print("zzzzzzzzzzzzzzzzz is ===== $previousPageCursor");
     await _fetchUserGroupsBatch(_accessToken!.token, previousPageCursor , 2);
   }
 
@@ -221,7 +210,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('CR Post Alarm App'),
+          title: const Text('CR Post Student Alarm App'),
         ),
         body: Center(
           child: Column(
@@ -231,6 +220,15 @@ class _MyAppState extends State<MyApp> {
                 ElevatedButton(
                   onPressed: _loginWithFacebook,
                   child: Text('Login with Facebook'),
+                ),
+              if (_accessToken != null)
+                const Column(
+                  children: [
+                    Text(
+                      'Select a Group from below dropdown',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                  ],
                 ),
               if (_accessToken != null)
                 DropdownButton<String>(
@@ -266,7 +264,7 @@ class _MyAppState extends State<MyApp> {
                     ),
                   ],
                 ),
-              
+              if (selectedGroupId != null)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -281,7 +279,7 @@ class _MyAppState extends State<MyApp> {
                     ),
                   ],
                 ),
-              // if (selectedGroupId != null)
+              if (selectedGroupId != null)
                 ElevatedButton(
                   onPressed: () async {
                     // Set a repeating alarm with the selected group ID as a parameter
@@ -293,8 +291,21 @@ class _MyAppState extends State<MyApp> {
                       // Pass the selected group ID as a parameter
                       params: {'selectedGroupId': selectedGroupId}).then((val) => print('set up:$val'));
                   },
-                  child: Text('Start CR Alarm'),
+                  child: Text('Start CR Alarm with FB'),
                 ),
+                
+                ElevatedButton(
+                  onPressed: () async {
+                    // Set a repeating alarm with the selected group ID as a parameter
+                    await AndroidAlarmManager.periodic(const Duration(minutes: 1), 4, _createAlarm,
+                      exact: true,
+                      wakeup: true,
+                      allowWhileIdle: true,
+                      rescheduleOnReboot: true).then((val) => print('set up:$val'));
+                  },
+                  child: Text('Start CR Alarm without FB'),
+                ),
+                const SizedBox(height: 20),
               // if (selectedGroupId != null)
                 ElevatedButton(
                   child: Text('Cancel Alarm'),
