@@ -46,6 +46,77 @@ flutter packages get
 flutter run
 ```
 
+<hr>
+
+### if below error come from api calling
+
+```bash
+HandshakeException: Handshake error in client (OS Error: CERTIFICATE_VERIFY_FAILED: certificate has expired(handshake.cc:393))
+```
+Then use this video 
+https://youtu.be/aaXMUM-_4lQ
+
+or
+
+Step 1:
+In your main.dart file, add or import the following class:
+```bash
+class PostHttpOverrides extends HttpOverrides{
+  @override
+  HttpClient createHttpClient(context){
+    return super.createHttpClient(context)
+      ..badCertificateCallback = (X509Certificate cert, String host, int port)=> true;
+  }
+}
+```
+Step 2:
+Add the following line after function definition In your main function:
+```bash
+HttpOverrides.global = new PostHttpOverrides();
+```
+Example :
+```bash
+import 'dart:io';
+ 
+ 
+import 'package:flutter/material.dart';
+import 'package:point/routes.dart';
+import 'package:point/theme.dart';
+ 
+import 'login/LoginScreen.dart';
+ 
+class PostHttpOverrides extends HttpOverrides{
+  @override
+  HttpClient createHttpClient( context){
+    return super.createHttpClient(context)
+      ..badCertificateCallback = (X509Certificate cert, String host, int port)=> true;
+  }
+}
+ 
+void main() {
+  HttpOverrides.global = new PostHttpOverrides();
+  runApp(MyApp());
+}
+ 
+class MyApp extends StatelessWidget {
+  // This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+ 
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Flutter Demo',
+      theme: theme(),
+      // home: SplashScreen(),
+      // We use routeName so that we dont need to remember the name
+      initialRoute: LoginScreen.routeName,
+      routes: routes,
+    );
+  }
+}
+```
+
+<hr>
 ## Acknowledgements
 
 - [Android Intent Plus](https://pub.dev/packages/android_intent_plus) library for alarm
