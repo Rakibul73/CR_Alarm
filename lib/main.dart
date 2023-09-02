@@ -47,7 +47,7 @@ Future<void> _createAlarm() async {
       int minute = scheduleddatetimeNowNow.minute;
       int hh = hour;
       int mm = minute;
-      
+
       try {
         final intent = AndroidIntent(
           action: 'android.intent.action.SET_ALARM',
@@ -70,25 +70,43 @@ Future<void> _createAlarm() async {
   }
 }
 
-
-
 Future<void> main() async {
   HttpOverrides.global = new PostHttpOverrides();
   WidgetsFlutterBinding.ensureInitialized();
   await AndroidAlarmManager.initialize();
-  runApp(MaterialApp(
-    home: MyApp(),
-  ));
+  runApp(const MyApp());
 }
 
-class MyApp extends StatefulWidget {
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  // This widget is the root of your application.
   @override
-  _MyAppState createState() => _MyAppState();
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'CR Alarm',
+      debugShowCheckedModeBanner: false,
+      darkTheme: ThemeData(
+        primarySwatch: Colors.cyan,
+        primaryColor: Colors.black,
+        brightness: Brightness.dark,
+        dividerColor: Colors.grey,
+        scaffoldBackgroundColor: const Color.fromARGB(255, 51, 98, 107),
+      ),
+      themeMode: ThemeMode.dark,
+      home: const MyHomePage(title: 'CR Alarm Home Page'),
+    );
+  }
 }
 
-class _MyAppState extends State<MyApp> {
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+  final String title;
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
   AccessToken? _accessToken;
   List<Group> _groups = [];
   String? selectedGroupId;
@@ -113,7 +131,7 @@ class _MyAppState extends State<MyApp> {
     if (previousPageCursor == null) {
       return;
     }
-    await _fetchUserGroupsBatch(_accessToken!.token, previousPageCursor , 2);
+    await _fetchUserGroupsBatch(_accessToken!.token, previousPageCursor, 2);
   }
 
   Future<void> _fetchUserGroupsBatch(String accessToken, String? pageCursor , int zz) async {
@@ -146,7 +164,6 @@ class _MyAppState extends State<MyApp> {
       throw Exception('Failed to fetch groups');
     }
   }
-
 
   Future<void> requestPermissions() async {
     PermissionStatus status = await Permission.ignoreBatteryOptimizations.status;
@@ -207,139 +224,172 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('CR Post Student Alarm App'),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Center(
+          child: Text('CR Alarm Student App'),
         ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (_accessToken == null)
-                ElevatedButton(
-                  onPressed: _loginWithFacebook,
-                  child: Text('Login with Facebook'),
-                ),
-              if (_accessToken != null)
-                const Column(
-                  children: [
-                    Text(
-                      'Select a Group from below dropdown',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              if (_accessToken != null)
-                DropdownButton<String>(
-                  isDense: true, // Add this line
-                  value: selectedGroupId,
-                  items: _groups.map((group) {
-                    return DropdownMenuItem<String>(
-                      value: group.id,
-                      child: Text(group.name),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      selectedGroupId = value;
-                    });
-                  },
-                ),
-              const SizedBox(height: 20),
-              if (selectedGroupId != null)
-                Column(
-                  children: [
-                    const Text(
-                      'You selected: ',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      'Group ID: $selectedGroupId',
-                      style: const TextStyle(fontSize: 14),
-                    ),
-                    Text(
-                      'Group Name: ${_groups.firstWhere((group) => group.id == selectedGroupId).name}',
-                      style: const TextStyle(fontSize: 14),
-                    ),
-                  ],
-                ),
-              if (selectedGroupId != null)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton(
-                      child: Text('Fetch Previous'),
-                      onPressed: fetchPreviousBatch,
-                    ),
-                    SizedBox(width: 16), // Add spacing between buttons
-                    ElevatedButton(
-                      child: Text('Fetch Next'),
-                      onPressed: fetchNextBatch,
-                    ),
-                  ],
-                ),
-              if (selectedGroupId != null)
-                ElevatedButton(
-                  onPressed: () async {
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (_accessToken == null)
+              ElevatedButton(
+                onPressed: (() {}),
+                // onPressed: _loginWithFacebook,
+                child: const Text('Login with Facebook'),
+              ),
+            if (_accessToken != null)
+              const Column(
+                children: [
+                  Text(
+                    'Select a Group from below dropdown',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            if (_accessToken != null)
+              DropdownButton<String>(
+                isDense: true, // Add this line
+                value: selectedGroupId,
+                items: _groups.map((group) {
+                  return DropdownMenuItem<String>(
+                    value: group.id,
+                    child: Text(group.name),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    selectedGroupId = value;
+                  });
+                },
+              ),
+            const SizedBox(height: 20),
+            if (selectedGroupId != null)
+              Column(
+                children: [
+                  const Text(
+                    'You selected: ',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    'Group ID: $selectedGroupId',
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                  Text(
+                    'Group Name: ${_groups.firstWhere((group) => group.id == selectedGroupId).name}',
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                ],
+              ),
+            if (selectedGroupId != null)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: fetchPreviousBatch,
+                    child: const Text('Fetch Previous'),
+                  ),
+                  const SizedBox(width: 16), // Add spacing between buttons
+                  ElevatedButton(
+                    onPressed: fetchNextBatch,
+                    child: const Text('Fetch Next'),
+                  ),
+                ],
+              ),
+            if (selectedGroupId != null)
+              ElevatedButton(
+                onPressed: () async {
+                  // Set a repeating alarm with the selected group ID as a parameter
+                  await AndroidAlarmManager.periodic(
+                          const Duration(minutes: 1), 4, _createAlarm,
+                          exact: true,
+                          wakeup: true,
+                          allowWhileIdle: true,
+                          rescheduleOnReboot: true,
+                          // Pass the selected group ID as a parameter
+                          params: {'selectedGroupId': selectedGroupId})
+                      .then((val) => print('set up:$val'));
+                },
+                child: const Text('Start CR Alarm with FB'),
+              ),
+
+            ElevatedButton(
+              child: const Text('Start CR Alarm without FB'),
+              onPressed: () {
+                AwesomeDialog(
+                  context: context,
+                  dialogType: DialogType.question,
+                  borderSide: const BorderSide(
+                    color: Colors.greenAccent,
+                    width: 2,
+                  ),
+                  width: 300,
+                  buttonsBorderRadius: const BorderRadius.all(
+                    Radius.circular(25),
+                  ),
+                  dismissOnTouchOutside: false,
+                  dismissOnBackKeyPress: false,
+                  headerAnimationLoop: true,
+                  animType: AnimType.bottomSlide,
+                  title: 'Start Alarm?',
+                  desc:
+                      'It will start CR alarm. Make sure you have always internet connection.',
+                  showCloseIcon: false,
+                  btnCancelOnPress: () {},
+                  btnOkOnPress: () async {
                     // Set a repeating alarm with the selected group ID as a parameter
-                    await AndroidAlarmManager.periodic(const Duration(minutes: 1), 4, _createAlarm,
-                      exact: true,
-                      wakeup: true,
-                      allowWhileIdle: true,
-                      rescheduleOnReboot: true,
-                      // Pass the selected group ID as a parameter
-                      params: {'selectedGroupId': selectedGroupId}).then((val) => print('set up:$val'));
+                    await AndroidAlarmManager.periodic(
+                            const Duration(minutes: 1), 4, _createAlarm,
+                            exact: true,
+                            wakeup: true,
+                            allowWhileIdle: true,
+                            rescheduleOnReboot: true)
+                        .then((val) => print('set up:$val'));
                   },
-                  child: Text('Start CR Alarm with FB'),
-                ),
-                
-                ElevatedButton(
-                  onPressed: () async {
-                    // Set a repeating alarm with the selected group ID as a parameter
-                    await AndroidAlarmManager.periodic(const Duration(minutes: 1), 4, _createAlarm,
-                      exact: true,
-                      wakeup: true,
-                      allowWhileIdle: true,
-                      rescheduleOnReboot: true).then((val) => print('set up:$val'));
+                  buttonsTextStyle: const TextStyle(color: Colors.black),
+                  reverseBtnOrder: true,
+                ).show();
+              },
+            ),
+            const SizedBox(height: 20),
+            // if (selectedGroupId != null)
+            ElevatedButton(
+              child: const Text('Cancel Alarm'),
+              onPressed: () {
+                AwesomeDialog(
+                  context: context,
+                  dialogType: DialogType.error,
+                  borderSide: const BorderSide(
+                    color: Colors.redAccent,
+                    width: 2,
+                  ),
+                  width: 300,
+                  buttonsBorderRadius: const BorderRadius.all(
+                    Radius.circular(25),
+                  ),
+                  dismissOnTouchOutside: false,
+                  dismissOnBackKeyPress: false,
+                  headerAnimationLoop: true,
+                  animType: AnimType.bottomSlide,
+                  title: 'Cancel Sure?',
+                  desc: 'Press OK button to cancel all the alarm.',
+                  showCloseIcon: false,
+                  btnCancelOnPress: () {},
+                  btnOkOnPress: () {
+                    cancel();
                   },
-                  child: Text('Start CR Alarm without FB'),
-                ),
-                const SizedBox(height: 20),
-              // if (selectedGroupId != null)
-                ElevatedButton(
-                  child: Text('Cancel Alarm'),
-                  onPressed: () {
-                    AwesomeDialog(
-                      context: context,
-                      dialogType: DialogType.error,
-                      borderSide: const BorderSide(
-                        color: Colors.green,
-                        width: 2,
-                      ),
-                      width: 300,
-                      buttonsBorderRadius: const BorderRadius.all(
-                        Radius.circular(25),
-                      ),
-                      dismissOnTouchOutside: false,
-                      dismissOnBackKeyPress: false,
-                      headerAnimationLoop: true,
-                      animType: AnimType.bottomSlide,
-                      title: 'Cancel Alarm?',
-                      desc: 'Press OK button to cancel all the fb group alarm.',
-                      showCloseIcon: false,
-                      btnCancelOnPress: () {},
-                      btnOkOnPress: () {cancel();},
-                      buttonsTextStyle: const TextStyle(color: Colors.black),
-                      reverseBtnOrder: true,
-                    ).show();
-                  },
-                ),
-            ],
-          ),
+                  buttonsTextStyle: const TextStyle(color: Colors.black),
+                  reverseBtnOrder: true,
+                ).show();
+              },
+            ),
+          ],
         ),
       ),
     );
+    ;
   }
 }
 
@@ -356,4 +406,3 @@ class Group {
     );
   }
 }
-
