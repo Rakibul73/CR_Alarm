@@ -25,10 +25,9 @@ Suppose In university, there is a CR (Class Representative) in your class. He po
 - [x] Adding Facebook api support (only when FB Group is public)
 - [x] Allow users the ability to select which group posts they want to follow.
 - [ ] Allow users the ability to select whose tweets they want to follow.
-
-<!-- - [ ] Multi-language Support
-    - [ ] Chinese
-    - [ ] Spanish -->
+- [ ] Android SDK Platform Support
+    - [x] Currently supported: `Android 9 (API level 28) and below`
+    - [ ] Not supported: `Android 10 (API level 29) and above` cause only problem is `android.intent.action.SET_ALARM` action from `Android Intent Plus` plugin is `only executing` when the app is in the screen, it is `not executing` when the app is in recent tabs or closed or in background.
 
 
 

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:disable_battery_optimization/disable_battery_optimization.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
@@ -12,8 +13,10 @@ import 'package:android_intent_plus/flag.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:platform/platform.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 const latestTimestampKey = "latestTimestamp";
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
 class PostHttpOverrides extends HttpOverrides{
   @override
@@ -25,6 +28,7 @@ class PostHttpOverrides extends HttpOverrides{
 
 @pragma('vm:entry-point') // Mandatory if the App is obfuscated or using Flutter 3.1+
 Future<void> _createAlarm() async {
+  print('zzzzzzzzzzzzzzzzzzzzzzzzz = _createAlarm');
   // Retrieve the latest timestamp from shared preferences
   final SharedPreferences prefs = await SharedPreferences.getInstance();
   String? latestTimestamp = prefs.getString(latestTimestampKey);
@@ -32,8 +36,11 @@ Future<void> _createAlarm() async {
   // Fetching data from API
   final response = await http.get(Uri.parse("https://tuimorsala.pythonanywhere.com/get_timestamp"));
   if (response.statusCode == 200) {
+    print('zzzzzzzzzzzzzzzzzzzzzzzzz = 200');
     final Map<String, dynamic> data =  json.decode(response.body);
     final String timestamp = data['timestamp'];
+    print('zzzzzzzzzzzzz timestamp zzzzz = $timestamp');
+    print('zzzzzzzzzzzzz latestTimestamp zzzzzzzzzzzz = $latestTimestamp');
     // Checking if the timestamp has changed or not
     if (timestamp != latestTimestamp) {
       // saving the latest timestamp to shared preferences for next time
@@ -47,8 +54,10 @@ Future<void> _createAlarm() async {
       int minute = scheduleddatetimeNowNow.minute;
       int hh = hour;
       int mm = minute;
-
+      print('zzzzzzzzzzzzzzzzzzzzzzzzz = $hh');
+      print('zzzzzzzzzzzzzzzzzzzzzzzzz = $mm');
       try {
+        print("zzzzzzzzzzzzzzzzzzzzzzzzz = try catch begin ");
         final intent = AndroidIntent(
           action: 'android.intent.action.SET_ALARM',
           arguments: <String, dynamic>{
@@ -59,22 +68,135 @@ Future<void> _createAlarm() async {
           },
         );
         await intent.launch();
+        print("zzzzzzzzzzzzzzzzzzzzzzzzz = try catch end ");
       } 
       catch (e) {
-        throw Exception('Error creating alarm: $e');
+        throw Exception('zzzzzzzzzzzzzzzzzzzzzzzz Error creating alarm: $e');
       }
     }
   } 
   else {
-    throw Exception('Failed to load data from API');
+    throw Exception('zzzzzzzzzzzzzzzzzzzzzzzzz Failed to load data from API');
   }
 }
+
 
 Future<void> main() async {
   HttpOverrides.global = new PostHttpOverrides();
   WidgetsFlutterBinding.ensureInitialized();
   await AndroidAlarmManager.initialize();
+  // Start the foreground service
+  MyForegroundService().onStart();
+  
+  
   runApp(const MyApp());
+}
+
+void showPersistentNotification() async {
+  const AndroidNotificationDetails androidPlatformChannelSpecifics =
+      AndroidNotificationDetails(
+    'your_channel_id', // Change to your channel ID
+    'Your Notification Title',
+    importance: Importance.high,
+    priority: Priority.high,
+    ongoing: true, // This makes it persistent
+    autoCancel: false,
+  );
+  const NotificationDetails platformChannelSpecifics =
+      NotificationDetails(android: androidPlatformChannelSpecifics);
+
+  await flutterLocalNotificationsPlugin.show(
+    0, // Notification ID
+    'CR ALARM',
+    'Running CR Alarm ..... ',
+    platformChannelSpecifics,
+  );
+}
+
+Future<void> requestNotificationPermission(BuildContext context) async {
+  final status = await Permission.notification.request();
+
+  if (status.isGranted) {
+    // Permission granted, you can show notifications now
+    // You can call your notification creation method here
+    showPersistentNotification();
+  } else if (status.isDenied) {
+    // Permission denied, show a dialog or message to inform the user
+    // You can also provide a button to open app settings
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Notification Permission'),
+        content: const Text('Please allow notification access in app settings.'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              openAppSettings(); // Open app settings on button press
+            },
+            child: const Text('Open Settings'),
+          ),
+        ],
+      ),
+    );
+  } else if (status.isPermanentlyDenied) {
+    // Permission permanently denied, handle accordingly
+    // You can inform the user and provide a way to open app settings
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Notification Permission'),
+        content: const Text('Notification permission is permanently denied. Please open app settings to enable it.'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              openAppSettings(); // Open app settings on button press
+            },
+            child: const Text('Open Settings'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Function to request the permission
+Future<void> requestScheduleExactAlarmPermission() async {
+  PermissionStatus status = await Permission.scheduleExactAlarm.request();
+
+  if (status.isGranted) {
+    print('SCHEDULE_EXACT_ALARM permission granted');
+  } else if (status.isDenied) {
+    print('SCHEDULE_EXACT_ALARM permission denied');
+    openAppSettings(); // Open app settings to allow the user to grant the permission
+  } else if (status.isPermanentlyDenied) {
+    print('SCHEDULE_EXACT_ALARM permission permanently denied');
+    openAppSettings(); // Open app settings to allow the user to grant the permission
+  }
+}
+
+
+class MyForegroundService {
+  Future<void> onStart() async {
+    print('zzzzzzzzzzzzzzzzzzzzzzzzz =  onStart');
+    
+    // Initialize your background tasks here.
+    // For example, you can use Android Alarm Manager to schedule periodic tasks.
+    await AndroidAlarmManager.periodic(
+                          const Duration(seconds: 30), 4, _createAlarm,
+                          exact: true,
+                          wakeup: true,
+                          allowWhileIdle: true,
+                          rescheduleOnReboot: true,).then((val) => print('set up:$val'));
+  }
+
+  Future<void> onStop() async {
+    // Clean up resources when the service is stopped.
+    // For example, cancel scheduled alarms.
+    print('zzzzzzzzzzzzzzzzzzzzzzzzz = stopped');
+    await AndroidAlarmManager.cancel(4);
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -116,8 +238,16 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    requestPermissions();
+    // requestPermissions();
     _checkFacebookLoginStatus();
+
+    // Initialize notifications
+    const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('app');
+    final InitializationSettings initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
+    flutterLocalNotificationsPlugin.initialize(initializationSettings);
+    flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.requestPermission();
+    // showPersistentNotification();
+    requestNotificationPermission(context);
   }
 
   void fetchNextBatch() async {
@@ -165,12 +295,12 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  Future<void> requestPermissions() async {
-    PermissionStatus status = await Permission.ignoreBatteryOptimizations.status;
-    if (!status.isGranted) {
-      status = await Permission.ignoreBatteryOptimizations.request();
-    }
-  }
+  // Future<void> requestPermissions() async {
+  //   PermissionStatus status = await Permission.ignoreBatteryOptimizations.status;
+  //   if (!status.isGranted) {
+  //     status = await Permission.ignoreBatteryOptimizations.request();
+  //   }
+  // }
 
   Future<void> _checkFacebookLoginStatus() async {
     final accessToken = await FacebookAuth.instance.accessToken;
@@ -234,12 +364,54 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            if (_accessToken == null)
               ElevatedButton(
-                onPressed: (() {}),
-                // onPressed: _loginWithFacebook,
-                child: const Text('Login with Facebook'),
+                child: const Text("Show Persistent Notification"),
+                onPressed: () {
+                  showPersistentNotification();
+                }
               ),
+              ElevatedButton(
+                child: const Text("Disable all Optimizations"),
+                onPressed: () {
+                  DisableBatteryOptimization.showDisableAllOptimizationsSettings('App Process', 'Enable App Battery Usage', 'Battery Optimization', 'Enable process');
+                }
+              ),
+              ElevatedButton(
+                child: const Text("request ScheduleExact Alarm Permission"),
+                onPressed: () {
+                  requestScheduleExactAlarmPermission();
+                }
+              ),
+              ElevatedButton(
+                child: const Text("Enable Auto Start"),
+                onPressed: () {
+                  DisableBatteryOptimization.showEnableAutoStartSettings(
+                      "Enable Auto Start",
+                      "Follow the steps and enable the auto start of this app");
+                }
+              ),
+              ElevatedButton(
+                child: const Text("Disable Battery Optimizations"),
+                onPressed: () {
+                  DisableBatteryOptimization
+                      .showDisableBatteryOptimizationSettings();
+                }
+              ),
+              ElevatedButton(
+                child: const Text("Disable Manufacturer Battery Optimizations"),
+                onPressed: () {
+                  DisableBatteryOptimization
+                      .showDisableManufacturerBatteryOptimizationSettings(
+                          "Your device has additional battery optimization",
+                          "Follow the steps and disable the optimizations to allow smooth functioning of this app");
+                }
+              ),
+            // if (_accessToken == null)
+            //   ElevatedButton(
+            //     onPressed: (() {}),
+            //     // onPressed: _loginWithFacebook,
+            //     child: const Text('Login with Facebook'),
+            //   ),
             if (_accessToken != null)
               const Column(
                 children: [
@@ -303,7 +475,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 onPressed: () async {
                   // Set a repeating alarm with the selected group ID as a parameter
                   await AndroidAlarmManager.periodic(
-                          const Duration(minutes: 1), 4, _createAlarm,
+                          const Duration(minutes: 5), 4, _createAlarm,
                           exact: true,
                           wakeup: true,
                           allowWhileIdle: true,
@@ -338,16 +510,16 @@ class _MyHomePageState extends State<MyHomePage> {
                       'It will start CR alarm. Make sure you have always internet connection.',
                   showCloseIcon: false,
                   btnCancelOnPress: () {},
-                  btnOkOnPress: () async {
-                    // Set a repeating alarm with the selected group ID as a parameter
-                    await AndroidAlarmManager.periodic(
-                            const Duration(minutes: 1), 4, _createAlarm,
-                            exact: true,
-                            wakeup: true,
-                            allowWhileIdle: true,
-                            rescheduleOnReboot: true)
-                        .then((val) => print('set up:$val'));
-                  },
+                  // btnOkOnPress: () async {
+                  //   // Set a repeating alarm with the selected group ID as a parameter
+                  //   await AndroidAlarmManager.periodic(
+                  //           const Duration(minutes: 5), 4, _createAlarm,
+                  //           exact: true,
+                  //           wakeup: true,
+                  //           allowWhileIdle: true,
+                  //           rescheduleOnReboot: true)
+                  //       .then((val) => print('set up:$val'));
+                  // },
                   buttonsTextStyle: const TextStyle(color: Colors.black),
                   reverseBtnOrder: true,
                 ).show();
@@ -378,7 +550,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   showCloseIcon: false,
                   btnCancelOnPress: () {},
                   btnOkOnPress: () {
-                    cancel();
+                    // cancel();
+                    MyForegroundService().onStop();
                   },
                   buttonsTextStyle: const TextStyle(color: Colors.black),
                   reverseBtnOrder: true,

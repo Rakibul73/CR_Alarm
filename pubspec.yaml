@@ -46,6 +46,10 @@ dependencies:
   android_alarm_manager_plus: ^3.0.2
   flutter_facebook_auth: ^6.0.1
   awesome_dialog: ^3.1.0
+  disable_battery_optimization: ^1.1.0+1
+  flutter_local_notifications: ^15.1.1
+  flutter_foreground_service: ^0.4.1
+  permission_handler_platform_interface: ^3.11.5
 
 dev_dependencies:
   flutter_test:
@@ -63,7 +67,7 @@ dev_dependencies:
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/icon/icon.png"
+  image_path: "assets/icon/ic_launcher.png"
   min_sdk_android: 21
 
 # For information on the generic Dart part of this file, see the
