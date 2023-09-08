@@ -116,6 +116,7 @@ class MyApp extends StatelessWidget {
 ```
 
 <hr>
+
 ## Acknowledgements
 
 - [Android Intent Plus](https://pub.dev/packages/android_intent_plus) library for alarm
