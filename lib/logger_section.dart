@@ -31,7 +31,7 @@ class _LoggerSectionState extends State<LoggerSection> {
   }
 
   Future<void> _loadLogFiles() async {
-    FlutterLogs.logInfo("logger_section", "_loadLogFiles", "trying to Load log files");
+    // FlutterLogs.logInfo("logger_section", "_loadLogFiles", "trying to Load log files");
     try {
       Directory? appDirectory = await getExternalStorageDirectory();
       print('appDirectory = $appDirectory');
@@ -45,7 +45,7 @@ class _LoggerSectionState extends State<LoggerSection> {
           logFiles = files;
         });
       }
-      FlutterLogs.logInfo("logger_section", "_loadLogFiles", "loaded all log files");
+      // FlutterLogs.logInfo("logger_section", "_loadLogFiles", "loaded all log files");
       print('logFiles = $logFiles');
     } catch (e) {
       FlutterLogs.logError("logger_section", "_loadLogFiles", "Error loading log files: $e");
@@ -55,7 +55,7 @@ class _LoggerSectionState extends State<LoggerSection> {
 
   Future<List<String>> _listLogFiles(Directory directory) async {
     List<String> files = [];
-    FlutterLogs.logInfo("logger_section", "_listLogFiles", "Listing log files from directory");
+    // FlutterLogs.logInfo("logger_section", "_listLogFiles", "Listing log files from directory");
     try {
       // List all entries in the directory
       List<FileSystemEntity> entries = directory.listSync();
@@ -70,7 +70,7 @@ class _LoggerSectionState extends State<LoggerSection> {
           files.addAll(subdirectoryFiles);
         }
       }
-      FlutterLogs.logInfo("logger_section", "_listLogFiles", "Loaded all log files");
+      // FlutterLogs.logInfo("logger_section", "_listLogFiles", "Loaded all log files");
     } catch (e) {
       FlutterLogs.logError("logger_section", "_listLogFiles", "Error listing log files from directory: $e");
       print('Error listing log files in directory: $e');
@@ -78,79 +78,51 @@ class _LoggerSectionState extends State<LoggerSection> {
     return files;
   }
 
-  // void _viewLogFile(String filePath) async {
-  //   FlutterLogs.logInfo("logger_section", "_viewLogFile", "trying to view log file");
-  //   try {
-  //     File logFile = File(filePath);
-  //     String content = await logFile.readAsString();
-  //     showDialog(
-  //       context: context,
-  //       builder: (BuildContext context) {
-  //         return AlertDialog(
-  //           title: Text('Log File Contents'),
-  //           content: SingleChildScrollView(
-  //             child: Text(content),
-  //           ),
-  //           actions: [
-  //             TextButton(
-  //               onPressed: () => Navigator.of(context).pop(),
-  //               child: Text('Close'),
-  //             ),
-  //           ],
-  //         );
-  //       },
-  //     );
-  //     FlutterLogs.logInfo("logger_section", "_viewLogFile", "successfully viewed log file");
-  //   } catch (e) {
-  //     FlutterLogs.logError("logger_section", "_viewLogFile", "Error reading log file: $e");
-  //     print('Error reading log file: $e');
-  //   }
-  // }
   void _viewLogFile(String filePath) async {
-  FlutterLogs.logInfo("logger_section", "_viewLogFile", "trying to view log file");
-  try {
-    File logFile = File(filePath);
-    String content = await logFile.readAsString();
+    // FlutterLogs.logInfo("logger_section", "_viewLogFile", "trying to view log file");
+    try {
+      File logFile = File(filePath);
+      String content = await logFile.readAsString();
 
-    // Show log content in a new page
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (BuildContext context) {
-          return Scaffold(
-            appBar: AppBar(
-              title: Text('Log File Contents'),
-            ),
-            body: Container(
-              color: Colors.black, // Set the background color to black
-              child: ListView(
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      content,
-                      style: const TextStyle(
-                        fontFamily: 'Courier New', // Use a monospaced font for logs
-                        fontSize: 12.0, // Adjust font size as needed
-                        color: Colors.white, // Set text color to white
-                      ),
-                      // Disable word wrap
-                      textWidthBasis: TextWidthBasis.parent,
-                    ),
-                  ),
-                ],
+      // Show log content in a new page
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (BuildContext context) {
+            return Scaffold(
+              appBar: AppBar(
+                title: Text('Log File Contents'),
               ),
-            ),
-          );
-        },
-      ),
-    );
+              body: Container(
+                color: Colors.black, // Set the background color to black
+                child: ListView(
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.all(18.0),
+                      child: Text(
+                        content,
+                        style: const TextStyle(
+                          fontFamily: 'monospaced', // Use a monospaced font for logs
+                          fontSize: 14.0, // Adjust font size as needed
+                          color: Colors.cyan, // Set text color to white
+                        ),
+                        // Disable word wrap
+                        textWidthBasis: TextWidthBasis.parent,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      );
 
-    FlutterLogs.logInfo("logger_section", "_viewLogFile", "successfully viewed log file");
-  } catch (e) {
-    FlutterLogs.logError("logger_section", "_viewLogFile", "Error reading log file: $e");
-    print('Error reading log file: $e');
+      // FlutterLogs.logInfo("logger_section", "_viewLogFile", "successfully viewed log file");
+    } catch (e) {
+      FlutterLogs.logError("logger_section", "_viewLogFile", "Error reading log file: $e");
+      print('Error reading log file: $e');
+    }
   }
-}
 
 
   @override
@@ -167,6 +139,13 @@ class _LoggerSectionState extends State<LoggerSection> {
                 fontWeight: FontWeight.bold,
                 color: Color.fromARGB(255, 255, 255, 255),
               ),
+            ),
+            const SizedBox(height: 5),
+            ElevatedButton(
+              onPressed: () {
+                FlutterLogs.clearLogs();
+              },
+              child: const Text('Clear All Logs'),
             ),
             const SizedBox(height: 5),
             ElevatedButton(
