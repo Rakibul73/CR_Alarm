@@ -78,34 +78,80 @@ class _LoggerSectionState extends State<LoggerSection> {
     return files;
   }
 
+  // void _viewLogFile(String filePath) async {
+  //   FlutterLogs.logInfo("logger_section", "_viewLogFile", "trying to view log file");
+  //   try {
+  //     File logFile = File(filePath);
+  //     String content = await logFile.readAsString();
+  //     showDialog(
+  //       context: context,
+  //       builder: (BuildContext context) {
+  //         return AlertDialog(
+  //           title: Text('Log File Contents'),
+  //           content: SingleChildScrollView(
+  //             child: Text(content),
+  //           ),
+  //           actions: [
+  //             TextButton(
+  //               onPressed: () => Navigator.of(context).pop(),
+  //               child: Text('Close'),
+  //             ),
+  //           ],
+  //         );
+  //       },
+  //     );
+  //     FlutterLogs.logInfo("logger_section", "_viewLogFile", "successfully viewed log file");
+  //   } catch (e) {
+  //     FlutterLogs.logError("logger_section", "_viewLogFile", "Error reading log file: $e");
+  //     print('Error reading log file: $e');
+  //   }
+  // }
   void _viewLogFile(String filePath) async {
-    FlutterLogs.logInfo("logger_section", "_viewLogFile", "trying to view log file");
-    try {
-      File logFile = File(filePath);
-      String content = await logFile.readAsString();
-      showDialog(
-        context: context,
+  FlutterLogs.logInfo("logger_section", "_viewLogFile", "trying to view log file");
+  try {
+    File logFile = File(filePath);
+    String content = await logFile.readAsString();
+
+    // Show log content in a new page
+    Navigator.of(context).push(
+      MaterialPageRoute(
         builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Log File Contents'),
-            content: SingleChildScrollView(
-              child: Text(content),
+          return Scaffold(
+            appBar: AppBar(
+              title: Text('Log File Contents'),
             ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text('Close'),
+            body: Container(
+              color: Colors.black, // Set the background color to black
+              child: ListView(
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      content,
+                      style: const TextStyle(
+                        fontFamily: 'Courier New', // Use a monospaced font for logs
+                        fontSize: 12.0, // Adjust font size as needed
+                        color: Colors.white, // Set text color to white
+                      ),
+                      // Disable word wrap
+                      textWidthBasis: TextWidthBasis.parent,
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           );
         },
-      );
-      FlutterLogs.logInfo("logger_section", "_viewLogFile", "successfully viewed log file");
-    } catch (e) {
-      FlutterLogs.logError("logger_section", "_viewLogFile", "Error reading log file: $e");
-      print('Error reading log file: $e');
-    }
+      ),
+    );
+
+    FlutterLogs.logInfo("logger_section", "_viewLogFile", "successfully viewed log file");
+  } catch (e) {
+    FlutterLogs.logError("logger_section", "_viewLogFile", "Error reading log file: $e");
+    print('Error reading log file: $e');
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
